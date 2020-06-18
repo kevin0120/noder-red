@@ -1,0 +1,876 @@
+[
+    {
+        "id": "ded75d2e.e023c",
+        "type": "tab",
+        "label": "接受结果并转发",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "b71a2f24.ec9b",
+        "type": "natsio-sub",
+        "z": "ded75d2e.e023c",
+        "server": "41f29fc5.9adb5",
+        "subject": "saturn.results.>",
+        "maxWanted": "",
+        "queue": "",
+        "x": 600,
+        "y": 540,
+        "wires": [
+            [
+                "5bec646e.4ad53c",
+                "2b17b3d4.f8a47c"
+            ]
+        ]
+    },
+    {
+        "id": "5bec646e.4ad53c",
+        "type": "debug",
+        "z": "ded75d2e.e023c",
+        "name": "NAT订阅收到的消息",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1170,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "9c241555.1fc1e8",
+        "type": "mqtt out",
+        "z": "ded75d2e.e023c",
+        "name": "三一IOT平台 测试环境 发送",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "broker": "42b585d0.a17a5c",
+        "x": 2390,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "7f2d220a.5ff44c",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "转换IOT的payload",
+        "func": "var ret = {};\nconst devicdID = msg.payload.DeviceID;\n\nvar reported = [];\n\nfor (let [key, value] of Object.entries(msg.payload)) {\n  if(key === 'keepalive_deadline') continue;\n  reported.push({ [key]: value, ts: Date.now()});\n}\n\nret.payload = {}\nret.payload.cmdId = \"10\";\nret.payload.clientUuid = devicdID;\n\nret.payload.reported = reported;\nreturn ret;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1260,
+        "y": 640,
+        "wires": [
+            [
+                "bca5ca7.54ff938"
+            ]
+        ]
+    },
+    {
+        "id": "c0d0f879.a65ee8",
+        "type": "debug",
+        "z": "ded75d2e.e023c",
+        "name": "IOT接收的payload",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 2400,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "11183473.db6ecc",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "注入flow初始化上下文(设备映射表)",
+        "topic": "",
+        "payload": "{\"0001\":{\"DeviceID\":\"F24157A7A5824995878F951A5DB47733\",\"CompanyNo\":\"10000\",\"factoryNo\":\"5802\",\"AssetNo\":\"12312\",\"DeviceName\":\"拧紧工具\",\"DeviceType\":\"S0706\",\"CncType\":\"2312313\",\"Status\":4,\"Emg\":0,\"Alarm\":0,\"Mode\":\"Auto\"},\"0002\":{\"DeviceID\":\"F24157A7A5824995878F951A5DB47734\",\"CompanyNo\":\"10000\",\"factoryNo\":\"5802\",\"AssetNo\":\"324234234\",\"DeviceName\":\"拧紧工具\",\"DeviceType\":\"S0706\",\"CncType\":\"2312313\",\"Status\":4,\"Emg\":0,\"Alarm\":0,\"Mode\":\"Auto\"}}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 760,
+        "y": 300,
+        "wires": [
+            [
+                "54285851.fcbf08",
+                "3929554d.14c31a"
+            ]
+        ]
+    },
+    {
+        "id": "54285851.fcbf08",
+        "type": "change",
+        "z": "ded75d2e.e023c",
+        "name": "设置设备映射表",
+        "rules": [
+            {
+                "t": "set",
+                "p": "equip_mapping",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1560,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22f702ca.0c44be",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "注入flow初始化三一拧紧程序号映射表",
+        "topic": "",
+        "payload": "{\"1\":\"AK231P1\",\"111\":\"AK11P1\"}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 760,
+        "y": 360,
+        "wires": [
+            [
+                "3243a0ed.2ec13"
+            ]
+        ]
+    },
+    {
+        "id": "3243a0ed.2ec13",
+        "type": "change",
+        "z": "ded75d2e.e023c",
+        "name": "设置三一拧紧程序号映射表",
+        "rules": [
+            {
+                "t": "set",
+                "p": "pset_mapping",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "898590b1.84c57",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "返回已经发送成功",
+        "func": "var payload = msg.payload.Body;\nvar data = {id: payload.data.id, has_upload: true};\nvar clientid = msg.topic.split('.')[2];\nret = {};\nret.topic = ret.replyTo = `saturn.${clientid}.results.response`\nconst buff = new Buffer(JSON.stringify(data));\nvar dd = {Body: buff.toString('base64')};\nret.payload = JSON.stringify(dd);\nreturn ret;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 980,
+        "y": 700,
+        "wires": [
+            [
+                "e09e5503.471608"
+            ]
+        ]
+    },
+    {
+        "id": "e09e5503.471608",
+        "type": "natsio-pub",
+        "z": "ded75d2e.e023c",
+        "server": "41f29fc5.9adb5",
+        "subject": "",
+        "message": "",
+        "x": 1230,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "ee2f35b9.988758",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "测试数据触发",
+        "topic": "saturn.results.123",
+        "payload": "{\"Body\":{\"method\":\"method_result\",\"data\":{\"id\":1,\"vin\":\"测试追踪号\",\"pset\":\"1\",\"pset_strategy\":\"AD\",\"pset_m_max\":1,\"pset_m_min\":0,\"pset_m_threshold\":1,\"pset_m_target\":0,\"pset_w_max\":200,\"pset_w_min\":100,\"pset_w_threshold\":1,\"pset_w_target\":150,\"control_date\":\"2020-06-04T05:04:29Z\",\"measure_torque\":0.14,\"measure_degree\":152,\"measure_result\":\"ok\",\"user_id\":\"张三\",\"assembly_line\":\"测试装配线\",\"controller_sn\":\"0004\",\"tightening_id\":\"0000004352\",\"tool_sn\":\"19168888\",\"workcenter_code\":\"测试工位\",\"exinfo\":\"00000000000000000000000000000000\",\"shift\":\"白班\"}}}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 680,
+        "y": 700,
+        "wires": [
+            [
+                "898590b1.84c57",
+                "451120e6.16f0d"
+            ]
+        ]
+    },
+    {
+        "id": "b6a914cf.6916a8",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "注入全局信息(salveID, gatewayIP等)",
+        "topic": "",
+        "payload": "{\"slaveID\":\"F24157A7A5824995878F951A5DB47733\",\"getwayIP\":\"192.168.1.2\",\"version\":1,\"productKey\":\"mdc\"}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 760,
+        "y": 220,
+        "wires": [
+            [
+                "221a9619.13f93a"
+            ]
+        ]
+    },
+    {
+        "id": "221a9619.13f93a",
+        "type": "change",
+        "z": "ded75d2e.e023c",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "slaveId",
+                "pt": "flow",
+                "to": "payload.slaveID",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "gatewayIP",
+                "pt": "flow",
+                "to": "payload.getwayIP",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "version",
+                "pt": "flow",
+                "to": "payload.version",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "productKey",
+                "pt": "flow",
+                "to": "payload.productKey",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1150,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "451120e6.16f0d",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "转换payload NAT 2 mqtt",
+        "func": "const pset_mapping = flow.get('pset_mapping');\nnode.log(`pset_mapping:${pset_mapping}`);\n\nconst keepalive_duration = flow.get('keepalive_duration') || 5; // 默认5秒\n\nconst equip_mapping_info = flow.get('equip_mapping');\nnode.log(`equip_mapping_info: ${JSON.stringify(equip_mapping_info)}`);\nif (!equip_mapping_info) return msg;\n\nvar raw_data = msg.payload.Body.data;\n\nconst tool_sn = raw_data.tool_sn;\nnode.log(`tool_sn: ${tool_sn}`);\n\nconst equip_base_info = equip_mapping_info[tool_sn];\nnode.log(`equip_base_info: ${JSON.stringify(equip_base_info)}`);\nif (!equip_base_info) return msg;\n\nequip_base_info.keepalive_deadline = Math.floor(Date.now() / 1000) + keepalive_duration;\nflow.set('equip_mapping', equip_mapping_info);\n\nvar payload = Object.assign({}, equip_base_info);\npayload.Status = 1; //作业状态\npayload.TightenTime = Math.floor(Date.now() / 1000);\npayload.TightenStatus = raw_data.measure_result.toLowerCase() === 'ok'? 1: 0;\npayload.TargetTorque = raw_data.pset_m_target;\npayload.RealTorque = raw_data.measure_torque;\npayload.Policy = raw_data.pset_strategy;\npayload.TargetAngle = raw_data.pset_w_target;\npayload.RealAngle = raw_data.measure_degree;\npayload.TighteningCurve = \"\";\npayload.ProgramID = raw_data.pset;\n// payload.ProgramID = pset_mapping[raw_data.pset];\npayload.TrackNo = raw_data.vin;\npayload.TighteningID = raw_data.tightening_id;\npayload.ErrorMsg = raw_data.exinfo;\npayload.User = raw_data.user_id;\npayload.Shift = raw_data.shift;\npayload.Line = raw_data.assembly_line;\npayload.Workcenter = raw_data.workcenter_code;\n\nmsg.payload = payload;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 990,
+        "y": 640,
+        "wires": [
+            [
+                "7f2d220a.5ff44c"
+            ]
+        ]
+    },
+    {
+        "id": "e84f46e9.043b68",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "手动软件版本上报",
+        "topic": "soft",
+        "payload": "{\"cmdId\":\"1\",\"version\":1,\"sequenceId\":1,\"edgeTime\":1566982427,\"productKey\":\"mdc\",\"clientUuid\":\"wg0001\",\"reported\":[{\"onLine\":\"1\",\"ts\":1577263339567},{\"ip\":\"1\",\"ts\":1577263339567},{\"softVersion\":\"V1.0.0\",\"ts\":1577263339567}]}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "3",
+        "x": 700,
+        "y": 440,
+        "wires": [
+            [
+                "7a603c9.64d51c4"
+            ]
+        ]
+    },
+    {
+        "id": "7a603c9.64d51c4",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "手动软件上报，获取正确的topic",
+        "func": "var ret = {topic: msg.topic};\nconst slaveId = flow.get('slaveId');\nconst gatewayIP = flow.get('gatewayIP');\n\nmsg.payload.clientUuid = slaveId;\nmsg.payload.reported.map(o => {\n    if (o.ip !== undefined) o.ip = gatewayIP;\n    o.ts = Date.now()\n    \n});\n\nret.payload = msg.payload;\n\nreturn ret;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1200,
+        "y": 440,
+        "wires": [
+            [
+                "bca5ca7.54ff938"
+            ]
+        ]
+    },
+    {
+        "id": "9ee88105.79f93",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "心跳包发送",
+        "topic": "soft",
+        "payload": "{\"cmdId\":\"3\",\"version\":1,\"sequenceId\":1,\"edgeTime\":1566982427,\"productKey\":\"mdc\",\"clientUuid\":\"wg0001\",\"reported\":[{\"loState\":\"1\",\"ts\":1577263339567},{\"softVersion\":\"V1.0.0\",\"ts\":1577263339567}]}",
+        "payloadType": "json",
+        "repeat": "300",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "3",
+        "x": 700,
+        "y": 820,
+        "wires": [
+            [
+                "835684ee.93de78"
+            ]
+        ]
+    },
+    {
+        "id": "835684ee.93de78",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "心跳包，获取正确的topic",
+        "func": "var ret = {topic: msg.topic};\nconst slaveId = flow.get('slaveId');\nconst gatewayIP = flow.get('gatewayIP');\n\nmsg.payload.clientUuid = slaveId;\nmsg.payload.reported.map(o => {\n    if (o.ip !== undefined) o.ip = gatewayIP;\n    o.ts = Date.now()\n});\n\nret.payload = msg.payload;\n\nreturn ret;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1220,
+        "y": 820,
+        "wires": [
+            [
+                "bca5ca7.54ff938"
+            ]
+        ]
+    },
+    {
+        "id": "c79cf8c6.b07a88",
+        "type": "catch",
+        "z": "ded75d2e.e023c",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 1300,
+        "y": 60,
+        "wires": [
+            [
+                "58f5d433.558c2c"
+            ]
+        ]
+    },
+    {
+        "id": "58f5d433.558c2c",
+        "type": "debug",
+        "z": "ded75d2e.e023c",
+        "name": "异常信息抓取",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1620,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "bca5ca7.54ff938",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "IOT的payload标准数据注入",
+        "func": "var ret = {};\nconst slaveId = flow.get('slaveId');\nconst version =  flow.get('version');\nconst productKey = flow.get('productKey');\nconst msgType = msg.topic === \"soft\"? \"soft\": \"gateway\";\n\nvar reported = [];\nret.topic = `SANY/${msgType}/pdev/sany/mdc/${slaveId}/data`;\n\nmsg.payload.sequenceId = 1;\nmsg.payload.version = version;\nmsg.payload.productKey = productKey;\nmsg.payload.edgeTime = Math.floor(Date.now() / 1000);\n\nret.payload = msg.payload\nreturn ret;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1570,
+        "y": 640,
+        "wires": [
+            [
+                "2cefe976.a852d6"
+            ]
+        ]
+    },
+    {
+        "id": "2cefe976.a852d6",
+        "type": "switch",
+        "z": "ded75d2e.e023c",
+        "name": "根据环境发送",
+        "property": "env",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "prod",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "test",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1870,
+        "y": 480,
+        "wires": [
+            [
+                "796a4199.1ce71"
+            ],
+            [
+                "9c241555.1fc1e8",
+                "c0d0f879.a65ee8"
+            ]
+        ]
+    },
+    {
+        "id": "6a632262.b8f10c",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "注入flow初始化环境参数",
+        "topic": "",
+        "payload": "test",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 720,
+        "y": 260,
+        "wires": [
+            [
+                "14ca0c76.201264"
+            ]
+        ]
+    },
+    {
+        "id": "14ca0c76.201264",
+        "type": "change",
+        "z": "ded75d2e.e023c",
+        "name": "设置环境参数",
+        "rules": [
+            {
+                "t": "set",
+                "p": "env",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1150,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "99f86c17.36faf",
+        "type": "mqtt out",
+        "z": "ded75d2e.e023c",
+        "name": "三一IOT平台生产环境发送",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "broker": "ee491456.101568",
+        "x": 2380,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "5f7dfefc.d1aec",
+        "type": "http in",
+        "z": "ded75d2e.e023c",
+        "name": "IOT指令下发",
+        "url": "/SANY/gateway/pdev/sany/:slaveId/task/post",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 680,
+        "y": 920,
+        "wires": [
+            [
+                "851a8bf6.a22928"
+            ]
+        ]
+    },
+    {
+        "id": "695ed7a.b535028",
+        "type": "http response",
+        "z": "ded75d2e.e023c",
+        "name": "返回值",
+        "statusCode": "",
+        "headers": {},
+        "x": 1210,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "851a8bf6.a22928",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "IOT指令下发函数",
+        "func": "msg.payload.code = 0;\nmsg.payload.msg = \"成功\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 930,
+        "y": 920,
+        "wires": [
+            [
+                "695ed7a.b535028",
+                "fc4cfcb9.3062e"
+            ]
+        ]
+    },
+    {
+        "id": "fc4cfcb9.3062e",
+        "type": "debug",
+        "z": "ded75d2e.e023c",
+        "name": "IOT指令返回值",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1200,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "796a4199.1ce71",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "生产环境topic带$符号",
+        "func": "var topic = `$${msg.topic}`;\nmsg.topic = topic;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 2100,
+        "y": 440,
+        "wires": [
+            [
+                "99f86c17.36faf",
+                "c0d0f879.a65ee8"
+            ]
+        ]
+    },
+    {
+        "id": "2b17b3d4.f8a47c",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "base64 转换",
+        "func": "var raw_data = JSON.parse(msg.payload);\nconst buff = new Buffer(raw_data.Body, 'base64');\nconst data = buff.toString('utf-8');\nnode.log(`body data: ${data}`);\nraw_data.Body = JSON.parse(data);\nmsg.payload = raw_data;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 640,
+        "wires": [
+            [
+                "451120e6.16f0d",
+                "898590b1.84c57"
+            ]
+        ]
+    },
+    {
+        "id": "8db7a5c0.438e88",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "注入keepalive_duration(秒)",
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 720,
+        "y": 140,
+        "wires": [
+            [
+                "a4f5a127.5ddc7"
+            ]
+        ]
+    },
+    {
+        "id": "a4f5a127.5ddc7",
+        "type": "change",
+        "z": "ded75d2e.e023c",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "keepalive_duration",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1180,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3929554d.14c31a",
+        "type": "debug",
+        "z": "ded75d2e.e023c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1560,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "308f47ad.3b8b98",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "设备keepalive状态监测",
+        "topic": "",
+        "payload": "{}",
+        "payloadType": "json",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "2",
+        "x": 570,
+        "y": 1140,
+        "wires": [
+            [
+                "213afd0a.989702"
+            ]
+        ]
+    },
+    {
+        "id": "213afd0a.989702",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "keep alive 监控触发",
+        "func": "const now = Math.floor(Date.now() / 1000);\nconst keepalive_duration = flow.get('keepalive_duration') || 5; // 默认5秒\nconst equip_mapping_info = flow.get('equip_mapping');\nconst status_map = {\n    online: 2,\n    offline: 4,\n}\nvar ret = [];\nvar tool_sn = '';\nconst raw_data = msg.payload.Body; //获取从nat收到的状态数据\nif(raw_data){\n    tool_sn = raw_data.data.tool_sn;\n    const equip_base_info = equip_mapping_info[tool_sn];\n\n    if (equip_base_info){\n        equip_base_info.keepalive_deadline = now + keepalive_duration;\n        equip_base_info.Status = status_map[raw_data.data.status];\n        ret.push(equip_base_info);\n    }\n}\nfor (let [equipment_sn, equipment_info] of Object.entries(equip_mapping_info)) {\n    if (equipment_sn === tool_sn) continue; //是之前判断的offline的不继续处理\n    if (!equipment_info.keepalive_deadline){\n        //说明是第一次连接，离线初始化\n        node.log(`离线初始化: ${equipment_sn}`);\n        equipment_info.keepalive_deadline = now + keepalive_duration;\n        equipment_info.Status = 4; // 离线\n        ret.push(equipment_info);\n    }\n    else if (now >= equipment_info.keepalive_deadline){\n        // 需要切换设备到待机状态\n        node.log(`需要切换状态: ${equipment_sn}`);\n        equipment_info.keepalive_deadline = now + keepalive_duration;\n        ret.push(equipment_info);\n    }\n}\nreturn {payload: ret};",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1010,
+        "y": 1140,
+        "wires": [
+            [
+                "2254d9ff.aa2936"
+            ]
+        ]
+    },
+    {
+        "id": "5e6a3e3e.91eb2",
+        "type": "natsio-sub",
+        "z": "ded75d2e.e023c",
+        "server": "41f29fc5.9adb5",
+        "subject": "saturn.tools.*.status",
+        "maxWanted": "",
+        "queue": "",
+        "x": 520,
+        "y": 1000,
+        "wires": [
+            [
+                "31b10950.75fb06"
+            ]
+        ]
+    },
+    {
+        "id": "31b10950.75fb06",
+        "type": "function",
+        "z": "ded75d2e.e023c",
+        "name": "base64 转换",
+        "func": "var raw_data = JSON.parse(msg.payload);\nconst buff = new Buffer(raw_data.Body, 'base64');\nconst data = buff.toString('utf-8');\nnode.log(`body data: ${data}`);\nraw_data.Body = JSON.parse(data);\nmsg.payload = raw_data;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 730,
+        "y": 1000,
+        "wires": [
+            [
+                "213afd0a.989702"
+            ]
+        ]
+    },
+    {
+        "id": "f59c218b.96dba",
+        "type": "inject",
+        "z": "ded75d2e.e023c",
+        "name": "测试数据触发",
+        "topic": "saturn.tools.123.status",
+        "payload": "{\"Body\":{\"method\":\"method_result\",\"data\":{\"tool_sn\":\"19168888\",\"status\":\"offline\"}}}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 550,
+        "y": 1080,
+        "wires": [
+            [
+                "213afd0a.989702"
+            ]
+        ]
+    },
+    {
+        "id": "2254d9ff.aa2936",
+        "type": "split",
+        "z": "ded75d2e.e023c",
+        "name": "拆分需要发送的数据",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 1300,
+        "y": 1140,
+        "wires": [
+            [
+                "33374a86.d66266",
+                "7f2d220a.5ff44c"
+            ]
+        ]
+    },
+    {
+        "id": "33374a86.d66266",
+        "type": "debug",
+        "z": "ded75d2e.e023c",
+        "name": "收到的需要发送的keepalive数据集合",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1620,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "41f29fc5.9adb5",
+        "type": "natsio-server",
+        "z": "",
+        "name": "",
+        "host": "10.1.1.134",
+        "port": "4222",
+        "json": false
+    },
+    {
+        "id": "42b585d0.a17a5c",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "三一IOT平台MQTT 测试 Broker",
+        "broker": "test.mosquitto.org",
+        "port": "8883",
+        "tls": "f37cfca7.cf606",
+        "clientid": "",
+        "usetls": true,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "ee491456.101568",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "三一生产环境broker",
+        "broker": "10.0.91.172",
+        "port": "9993",
+        "tls": "12ee129e.7ddbfd",
+        "clientid": "5.Gateway.pdev.sany.mdc.Z1000shtt01",
+        "usetls": true,
+        "compatmode": false,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "f37cfca7.cf606",
+        "type": "tls-config",
+        "z": "",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "mosquitto.org.crt",
+        "servername": "",
+        "verifyservercert": false
+    },
+    {
+        "id": "12ee129e.7ddbfd",
+        "type": "tls-config",
+        "z": "",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "cacert.cer",
+        "servername": "",
+        "verifyservercert": false
+    }
+]

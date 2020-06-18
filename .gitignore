@@ -11,7 +11,7 @@
 *_cred*
 coverage
 credentials.json
-flows*.json
+
 nodes/node-red-nodes/
 node_modules
 public
